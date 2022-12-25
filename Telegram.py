@@ -19,7 +19,18 @@ def handle_message(message):
   if message.text.lower() == '/status':
     # Make an HTTP GET request to the Nanopool API to get the miner's status
     #response = requests.get(f'https://api.nanopool.org/v1/eth/status?apikey={API_KEY}')
-    response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}') 
+    # Ask the user for their Nanopool API key
+    bot.send_message(chat_id=message.chat_id, text='Please enter your Nanopool API key:')
+    api_key_message = bot.wait_for_message(chat_id=message.chat_id)
+
+    # Check if the user entered an API key
+    if api_key_message.text:
+      # Get the miner's status using the provided API key
+      check_status(api_key_message.text)
+    else:
+      bot.send_message(chat_id=message.chat_id, text='No API key provided. Please try again.')
+      
+  response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}') 
 
     data = response.json()
 
