@@ -2,8 +2,13 @@ import requests
 import telegram
 import time
 
-# Replace TOKEN with the API token for your bot, which you can get from the BotFather
-bot = telegram.Bot(token='5918737230:AAFkh98WdqYIo0mAAsZyK54d1kgsHgiDU18')
+config = configparser.ConfigParser()
+config.read('config.ini')
+# Get the bot token from the configuration file
+bot_token = config['telegram']['bot_token']
+
+# Create the bot using the token from the configuration file
+bot = telegram.Bot(token=bot_token)
 
 # Replace API_KEY with your Nanopool API key
 API_KEY = 'RJse7jdq4WfSgcJozssAec4Kio4cbhsNdz'
