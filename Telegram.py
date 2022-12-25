@@ -11,9 +11,6 @@ bot_token = config['telegram']['bot_token']
 # Create the bot using the token from the configuration file
 bot = telegram.Bot(token=bot_token)
 
-# Replace API_KEY with your Nanopool API key
-API_KEY = 'RJse7jdq4WfSgcJozssAec4Kio4cbhsNdz'
-
 def handle_message(message):
   # Check if the message is a command to get the miner's status
   if message.text.lower() == '/status':
@@ -29,7 +26,7 @@ def handle_message(message):
     else:
       bot.send_message(chat_id=message.chat_id, text='No API key provided. Please try again.')
       
-  response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}') 
+    response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}') 
 
     data = response.json()
 
