@@ -1,6 +1,7 @@
 import requests
 import telegram
 import time
+import configparser
 
 config = configparser.ConfigParser()
 config.read('config.ini')
