@@ -1,12 +1,8 @@
 import requests
-import telegram
 import configparser
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-address_handler = None
-stats = None
 
-
-def get_miner_status(address):
+def get_miner_stats(address):
     # Set the API endpoint URL
     API_URL = "https://api.nanopool.org/v1/rvn/user/address"
 
@@ -17,22 +13,19 @@ def get_miner_status(address):
     if response.status_code == 200:
         # The request was successful, so parse the response
         data = response.json()
-        # Return the miner's status
-        return data['status']
+        # Return the miner's stats
+        return data['data']
     else:
         # The request was not successful, so return an error message
-        return "An error occurred while retrieving the miner's status"
+        return "An error occurred while retrieving the miner's stats"
 
 def start(update, context):
-    global address_handler
-    
     # Send a message asking the user for their address
     update.message.reply_text("Please enter your address:")
 
     # Set the handler to wait for the user's response
     address_handler = MessageHandler(Filters.text, address_received)
     context.dispatcher.add_handler(address_handler)
-
 
 def address_received(update, context):
     # Remove the handler for the address
@@ -41,24 +34,22 @@ def address_received(update, context):
     # Get the user's address
     address = update.message.text
 
-    # Get the miner's status
-    global stats
+    # Get the miner's stats
     stats = get_miner_stats(address)
 
-    # Send the miner's status to the user
-    #update.message.reply_text("Miner status: {}".format(miner_status))
-    update.message.reply_text(f"Miner balance: {stats['balance']} RVN\nReported hashrate: {stats['hashrate']} MH/s")
+    # Send the miner's stats to the user
+    update.message.reply_text(f"Miner balance: {status['balance']} RVN\nReported hashrate: {status['hashrate']} MH/s")
 
 def main():
     # Read the bot token from the configuration file
     config = configparser.ConfigParser()
     config.read("config.ini")
     bot_token = config["DEFAULT"]["bot_token"]
- 
+
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     updater = Updater(bot_token, use_context=True)
-   
+
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
@@ -75,4 +66,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
