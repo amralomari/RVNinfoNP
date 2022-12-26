@@ -3,6 +3,8 @@ import telegram
 import configparser
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 address_handler = None
+stats = None
+
 
 def get_miner_status(address):
     # Set the API endpoint URL
@@ -40,7 +42,8 @@ def address_received(update, context):
     address = update.message.text
 
     # Get the miner's status
-    miner_status = get_miner_status(address)
+    global stats
+    stats = get_miner_stats(address)
 
     # Send the miner's status to the user
     #update.message.reply_text("Miner status: {}".format(miner_status))
