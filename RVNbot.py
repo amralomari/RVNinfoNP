@@ -25,9 +25,7 @@ def handle_message(message):
       check_status(api_key_message.text)
     else:
       bot.send_message(chat_id=message.chat_id, text='No API key provided. Please try again.')
-      
-  response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}') 
-
+  response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}')
   data = response.json()
 
   # Extract the relevant information from the API response and format it into a message
