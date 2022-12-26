@@ -2,46 +2,63 @@ import requests
 import telegram
 import time
 import configparser
+import requests
+from telegram.ext import Updater, CommandHandler
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-# Get the bot token from the configuration file
-bot_token = config['telegram']['bot_token']
+def get_miner_status(api_key):
+    # Set the API endpoint URL
+    API_URL = "https://api.nanopool.org/v1/rvn/user/{API_KEY}"
 
-# Create the bot using the token from the configuration file
-bot = telegram.Bot(token=bot_token)
+    # Make the API request
+    response = requests.get(API_URL, params={"api_key": api_key})
 
-def handle_message(message):
-  # Check if the message is a command to get the miner's status
-  if message.text.lower() == '/status':
-    # Make an HTTP GET request to the Nanopool API to get the miner's status
-    # Ask the user for their Nanopool API key
-    bot.send_message(chat_id=message.chat_id, text='Please enter your Nanopool API key:')
-    api_key_message = bot.wait_for_message(chat_id=message.chat_id)
-
-    # Check if the user entered an API key
-    if api_key_message.text:
-      # Get the miner's status using the provided API key
-      check_status(api_key_message.text)
+    # Check the status code of the response
+    if response.status_code == 200:
+        # The request was successful, so parse the response
+        data = response.json()
+        # Return the miner's status
+        return data['status']
     else:
-      bot.send_message(chat_id=message.chat_id, text='No API key provided. Please try again.')
-  response = requests.get(f'https://api.nanopool.org/v1/rvn/user/{API_KEY}')
-  data = response.json()
+        # The request was not successful, so return an error message
+        return "An error occurred while retrieving the miner's status"
 
-  # Extract the relevant information from the API response and format it into a message
-  message_text = f'Miner status: {data["status"]}\n'
-  message_text2 = f'Hashrate: {data["data"]["hashrate"]} MH/s\n'
-  #message_text += f'Hashrate: {data["hashrate"]} MH/s\n'
-  message_text3 = f'Unpaid balance: {data["data"]["unconfirmed_balance"]} RVN\n'
-  message_text4 = f'Balance: {data["data"]["balance"]}'
+def start(update, context):
+    # Prompt the user for their API key
+    api_key = input("Please enter your API key: ")
 
-  # Use the Telegram API to send the message back to the user
-  bot.send_message(chat_id=message.chat_id, text=message_text + message_text2 + message_text3 + message_text4)
+    # Prompt the user for the hash of their miner
+   #miner_hash = input("Please enter the hash of your miner: ")
 
-# Set up a loop to continuously listen for incoming messages
-update_id = None
-while True:
-  updates = bot.get_updates(offset=update_id, timeout=10)
-  for update in updates:
-    update_id = update.update_id + 1
-    handle_message(update.message)
+    # Get the miner's status
+    miner_status = get_miner_status(api_key)
+
+    # Send the miner's status to the user
+    update.message.reply_text("Miner status: {}".format(miner_status))
+
+def main():
+    # Read the bot token from the configuration file
+    config = configparser.ConfigParser()
+    config.read("config.ini")
+    bot_token = config["DEFAULT"]["bot_token"]
+ 
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    updater = Updater(bot_token, use_context=True)
+   
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # Add the start command handler
+    dp.add_handler(CommandHandler("start", start))
+
+    # Start the bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
+
