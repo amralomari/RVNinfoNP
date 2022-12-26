@@ -1,16 +1,14 @@
 import requests
 import telegram
-import time
 import configparser
-import requests
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-def get_miner_status(api_key):
+def get_miner_status(address):
     # Set the API endpoint URL
-    API_URL = "https://api.nanopool.org/v1/rvn/user/{API_KEY}"
+    API_URL = "https://api.nanopool.org/v1/rvn/user/address"
 
     # Make the API request
-    response = requests.get(API_URL, params={"api_key": api_key})
+    response = requests.get(API_URL, params={"address": address})
 
     # Check the status code of the response
     if response.status_code == 200:
@@ -23,17 +21,25 @@ def get_miner_status(api_key):
         return "An error occurred while retrieving the miner's status"
 
 def start(update, context):
-    # Prompt the user for their API key
-    api_key = input("Please enter your API key: ")
+    # Send a message asking the user for their address
+    update.message.reply_text("Please enter your address:")
 
-    # Prompt the user for the hash of their miner
-   #miner_hash = input("Please enter the hash of your miner: ")
+    # Set the handler to wait for the user's response
+    address_handler = MessageHandler(Filters.text, address_received)
+    context.dispatcher.add_handler(address_handler)
+
+def address_received(update, context):
+    # Remove the handler for the address
+    context.dispatcher.remove_handler(address_handler)
+
+    # Get the user's address
+    address = update.message.text
 
     # Get the miner's status
-    miner_status = get_miner_status(api_key)
+    miner_status = get_miner_status(address)
 
     # Send the miner's status to the user
-    update.message.reply_text("Miner status: {}".format(miner_status))
+    update.message.reply_text(f"Miner status: {miner_status}")
 
 def main():
     # Read the bot token from the configuration file
