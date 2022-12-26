@@ -39,7 +39,7 @@ def address_received(update, context):
     miner_status = get_miner_status(address)
 
     # Send the miner's status to the user
-    update.message.reply_text(f"Miner status: {miner_status}")
+    update.message.reply_text("Miner status: {}".format(miner_status))
 
 def main():
     # Read the bot token from the configuration file
