@@ -2,6 +2,7 @@ import requests
 import telegram
 import configparser
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+address_handler = None
 
 def get_miner_status(address):
     # Set the API endpoint URL
@@ -21,12 +22,15 @@ def get_miner_status(address):
         return "An error occurred while retrieving the miner's status"
 
 def start(update, context):
+    global address_handler
+    
     # Send a message asking the user for their address
     update.message.reply_text("Please enter your address:")
 
     # Set the handler to wait for the user's response
     address_handler = MessageHandler(Filters.text, address_received)
     context.dispatcher.add_handler(address_handler)
+
 
 def address_received(update, context):
     # Remove the handler for the address
