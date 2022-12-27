@@ -13,7 +13,7 @@ api_token = config['DEFAULT']['bot_token']
 bot = telegram.Bot(token=api_token)
 
 # Replace API_KEY with your Nanopool API key
-API_KEY = 'RJse7jdq4WfSgcJozssAec4Kio4cbhsNdz'
+#API_KEY = 'RJse7jdq4WfSgcJozssAec4Kio4cbhsNdz'
 
 def handle_message(update_id, message):
   # Check if the message is a command to get the miner's status
@@ -51,4 +51,4 @@ while True:
   updates = bot.get_updates(offset=update_id, timeout=10)
   for update in updates:
     update_id = update.update_id + 1
-    handle_message(update.message)
+    handle_message(update_id, update.message)
