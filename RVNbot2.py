@@ -7,7 +7,7 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 # Get the API token from the configuration file
-api_token = config['DEFAULT']['API_TOKEN']
+api_token = config['DEFAULT']['bot_token']
 
 # Initialize the bot using the API token
 bot = telegram.Bot(token=api_token)
