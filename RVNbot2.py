@@ -7,15 +7,15 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 # Get the API token from the configuration file
-api_token = config['DEFAULT']['bot_token']
+api_token = config['DEFAULT']['API_TOKEN']
 
 # Initialize the bot using the API token
 bot = telegram.Bot(token=api_token)
 
 # Replace API_KEY with your Nanopool API key
-#API_KEY = 'RJse7jdq4WfSgcJozssAec4Kio4cbhsNdz'
+API_KEY = 'RJse7jdq4WfSgcJozssAec4Kio4cbhsNdz'
 
-def handle_message(message):
+def handle_message(update_id, message):
   # Check if the message is a command to get the miner's status
   if message.text.lower() == '/status':
     # Send a message asking the user for their address
@@ -50,5 +50,4 @@ update_id = None
 while True:
   updates = bot.get_updates(offset=update_id, timeout=10)
   for update in updates:
-    update_id = update.update_id + 1
-    handle_message(update.message)
+    update_id = update.update_
