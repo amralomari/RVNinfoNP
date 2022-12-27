@@ -50,4 +50,5 @@ update_id = None
 while True:
   updates = bot.get_updates(offset=update_id, timeout=10)
   for update in updates:
-    update_id = update.update_
+    update_id = update.update_id + 1
+    handle_message(update.message)
