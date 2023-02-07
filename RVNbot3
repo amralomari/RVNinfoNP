@@ -1,0 +1,60 @@
+import requests
+import time
+import configparser
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+def get_miner_info(wallet_address):
+    # Fetch the miner information from Nanopool API using the provided wallet address
+    url = f"https://api.nanopool.org/v1/rvn/user/{wallet_address}"
+    response = requests.get(url)
+    miner_info = response.json()
+    return miner_info
+
+def send_message(chat_id, message):
+    # Send a message to the user using the Telegram Bot API
+    bot_token = config["DEFAULT"]["BOT_TOKEN"]
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}"
+    requests.get(url)
+
+def handle_message(message):
+    # Extract the wallet address from the message sent by the user
+    wallet_address = message["text"].strip()
+    
+    # Get the miner information
+    miner_info = get_miner_info(wallet_address)
+    
+    # Prepare the message to be sent to the user
+    status = miner_info["status"]
+    if status == True:
+        message = f"Miner is currently active with the following stats:\n"
+        message += f"Hashrate: {miner_info['data']['hashrate']} H/s\n"
+        message += f"Avg Hashrate: {miner_info['data']['avgHashrate']} H/s\n"
+        message += f"Valid Shares: {miner_info['data']['validShares']}\n"
+        message += f"Invalid Shares: {miner_info['data']['invalidShares']}\n"
+    else:
+        message = "Miner is not active. Please check if it is running properly."
+    
+    # Send the message to the user
+    send_message(message["chat"]["id"], message)
+
+def main():
+    # Continuously poll the Telegram Bot API for new messages
+    last_update_id = None
+    while True:
+        bot_token = config["DEFAULT"]["BOT_TOKEN"]
+        url = f"https://api.telegram.org/bot{bot_token}/getUpdates"
+        if last_update_id:
+            url += f"?offset={last_update_id + 1}"
+        response = requests.get(url)
+        result = response.json()["result"]
+        if result:
+            for update in result:
+                message = update["message"]
+                last_update_id = update["update_id"]
+                handle_message(message)
+        time.sleep(1)
+
+if __name__ == "__main__":
+    main()
